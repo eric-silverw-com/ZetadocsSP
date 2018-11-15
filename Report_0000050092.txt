@@ -1,0 +1,232 @@
+OBJECT Report 50092 Zetadocs Import Entries
+{
+  OBJECT-PROPERTIES
+  {
+    Date=07/18/16;
+    Time=12:16:36 PM;
+    Modified=Yes;
+    Version List=ZETA;
+  }
+  PROPERTIES
+  {
+    ProcessingOnly=Yes;
+  }
+  DATASET
+  {
+    { 5444;    ;DataItem;                    ;
+               DataItemTable=Table2000000026;
+               DataItemTableView=SORTING(Number);
+               OnPreDataItem=BEGIN
+
+                               XlFileName := ComDlgMgt.UploadFileSilent(XlFileName);
+                               IF XlFileName = '' THEN
+                                 ERROR('Unable to send file to the server');
+
+                               ExcelBuffer.OpenBookByOrdinal(XlFileName, 1);
+                               ExcelBuffer.ReadSheet;
+                               ExcelBuffer.FINDLAST;
+                               SETRANGE(Number, 2, ExcelBuffer."Row No.");
+
+                               TotalCount := ExcelBuffer."Row No." - 1;
+                               Window.OPEN('Importing Entries @1@@@@@@@@@@@@@@');
+                             END;
+
+               OnAfterGetRecord=BEGIN
+                                  ImportCount += 1;
+                                  Window.UPDATE(1, ImportCount / TotalCount * 9999 DIV 1);
+                                  IF NOT ExcelBuffer.GET(Number, 2) THEN
+                                    EXIT; // Only actual documents are needed
+
+                                  WITH ZetaEntries DO
+                                  BEGIN
+                                    INIT;
+                                    ID := CREATEGUID;
+                                    "Row No." := Integer.Number;
+                                    ZetadocsRecordNo := ExcelBuffer."Cell Value as Text";
+                                    ExcelBuffer.GET(Number, 1);
+                                    FileName := ExcelBuffer."Cell Value as Text";
+                                    Title := TitleOf(FileName);
+                                    IF ExcelBuffer.GET(Number, 3) THEN
+                                      ZetadocsOrganization := ExcelBuffer."Cell Value as Text";
+                                    IF ExcelBuffer.GET(Number, 4) THEN
+                                      ZetadocsFrom := ExcelBuffer."Cell Value as Text";
+                                    IF ExcelBuffer.GET(Number, 7) THEN
+                                      ZetadocsBcc := ExcelBuffer."Cell Value as Text";
+                                    IF ExcelBuffer.GET(Number, 8) THEN
+                                      ZetadocsCc := ExcelBuffer."Cell Value as Text";
+                                    IF ExcelBuffer.GET(Number, 9) THEN
+                                      DateValue(ArchivedDate, ExcelBuffer."Cell Value as Text");
+                                    IF ExcelBuffer.GET(Number, 10) THEN
+                                      ArchivedBy := ExcelBuffer."Cell Value as Text";
+                                    IF ExcelBuffer.GET(Number, 11) THEN
+                                      DateValue(ZetadocsDateReceived, ExcelBuffer."Cell Value as Text");
+                                    IF ExcelBuffer.GET(Number, 12) THEN
+                                      DateValue(ZetadocsDateSent, ExcelBuffer."Cell Value as Text");
+                                    IF ExcelBuffer.GET(Number, 13) THEN
+                                      ZetadocsDocumentType := ExcelBuffer."Cell Value as Text";
+                                    IF ExcelBuffer.GET(Number, 14) THEN
+                                      ZetadocsEmail := ExcelBuffer."Cell Value as Text";
+                                    IF ExcelBuffer.GET(Number, 15) THEN
+                                      ZetadocsFax := ExcelBuffer."Cell Value as Text";
+                                    IF ExcelBuffer.GET(Number, 17) THEN
+                                      ZetadocsCompanyNo := ExcelBuffer."Cell Value as Text";
+                                    IF ExcelBuffer.GET(Number, 18) THEN
+                                      ZetadocsPrinter := ExcelBuffer."Cell Value as Text";
+                                    IF ExcelBuffer.GET(Number, 19) THEN
+                                      ZetadocsRecipientName := ExcelBuffer."Cell Value as Text";
+                                    IF ExcelBuffer.GET(Number, 20) THEN
+                                      ZetadocsRecordType := ExcelBuffer."Cell Value as Text";
+                                    IF ExcelBuffer.GET(Number, 21) THEN
+                                      ZetadocsArchiveID := ExcelBuffer."Cell Value as Text";
+                                    IF ExcelBuffer.GET(Number, 24) THEN
+                                      SubFolder := PathOf(ExcelBuffer."Cell Value as Text");
+
+                                    INSERT;
+                                  END;
+                                END;
+
+               OnPostDataItem=BEGIN
+                                Window.CLOSE;
+                              END;
+                               }
+
+  }
+  REQUESTPAGE
+  {
+    PROPERTIES
+    {
+    }
+    CONTROLS
+    {
+      { 1000000001;;Container;
+                  ContainerType=ContentArea }
+
+      { 1000000002;1;Group  ;
+                  CaptionML=ENU=Options;
+                  GroupType=Group }
+
+      { 1000000000;2;Field  ;
+                  CaptionML=ENU=Import File;
+                  SourceExpr=XlFileName;
+                  OnValidate=VAR
+                               NewFileName@1000000000 : Text[250];
+                             BEGIN
+                               NewFileName := ComDlgMgt.OpenFileDialog('Select Import File', XlFileName, FilterText);
+                               IF NewFileName <> '' THEN
+                                 XlFileName := NewFileName;
+                             END;
+
+                  OnAssistEdit=VAR
+                                 NewFileName@1000000000 : Text[250];
+                               BEGIN
+                                 NewFileName := ComDlgMgt.OpenFileDialog('Select Import File', XlFileName, FilterText);
+                                 IF NewFileName <> '' THEN
+                                   XlFileName := NewFileName;
+                               END;
+                                }
+
+    }
+  }
+  LABELS
+  {
+  }
+  CODE
+  {
+    VAR
+      ComDlgMgt@1000000010 : Codeunit 419;
+      XlFileName@1000000008 : Text[250];
+      ExcelBuffer@1000000000 : Record 370;
+      ZetaEntries@1000000001 : Record 50016;
+      ImportCount@1000000002 : Integer;
+      FilterText@1000000004 : TextConst 'ENU="Excel Files (*.xlsx;*.xls)|*.xlsx;*.xls|All Files (*.*)|*.*"';
+      Window@1000000003 : Dialog;
+      TotalCount@1000000005 : Integer;
+
+    LOCAL PROCEDURE DateValue@1000000002(VAR DTValue@1000000000 : DateTime;TextValue@1000000001 : Text);
+    VAR
+      DFormula@1000000007 : DateFormula;
+      DayPart@1000000002 : Integer;
+      TimePart@1000000003 : Decimal;
+      DateValue@1000000008 : Date;
+      Hours@1000000004 : Integer;
+      Minutes@1000000005 : Integer;
+      AMPM@1000000006 : Code[10];
+    BEGIN
+      EVALUATE(TimePart, TextValue);
+      DayPart := TimePart DIV 1;
+      DayPart -= 2;
+
+      TimePart := TimePart MOD 1;
+
+      DateValue := 01011900D;
+      REPEAT
+        IF DayPart > 9999 THEN
+        BEGIN
+          DateValue := CALCDATE('+9999D', DateValue);
+          DayPart -= 9999;
+        END ELSE BEGIN
+          EVALUATE(DFormula, STRSUBSTNO('+%1D', DayPart));
+          DateValue := CALCDATE(DFormula, DateValue);
+          DayPart := 0;
+        END;
+      UNTIL DayPart = 0;
+
+      Hours := (24 * TimePart) DIV 1;
+      TimePart := (24 * TimePart) MOD 1;
+      Minutes := (60 * TimePart) DIV 1;
+
+      AMPM := 'AM';
+      IF Hours > 12 THEN
+      BEGIN
+        AMPM := 'PM';
+        Hours -= 12;
+      END;
+
+      IF Hours = 0 THEN
+        Hours := 12;
+
+      EVALUATE(DTValue, STRSUBSTNO('%1 %2:%3 %4', DateValue, Hours, Minutes, AMPM));
+    END;
+
+    LOCAL PROCEDURE TitleOf@1000000000(FileName@1000000000 : Text[200]) TitleName : Text[200];
+    VAR
+      i@1000000001 : Integer;
+    BEGIN
+      TitleName := FileName;
+      FOR i := STRLEN(FileName) DOWNTO 1 DO
+      BEGIN
+        IF FileName[i] = '.' THEN
+        BEGIN
+          TitleName := COPYSTR(FileName, 1, i-1);
+          EXIT;
+        END;
+      END;
+    END;
+
+    LOCAL PROCEDURE PathOf@1000000008(LongPath@1000000000 : Text[250]) ShortPath : Text[100];
+    VAR
+      i@1000000001 : Integer;
+      c@1000000002 : Integer;
+    BEGIN
+      FOR i := STRLEN(LongPath) DOWNTO 1 DO
+      BEGIN
+        IF LongPath[i] = '/' THEN
+        BEGIN
+          c += 1;
+          IF c > 1 THEN
+          BEGIN
+            ShortPath := COPYSTR(LongPath, i+1);
+            EXIT;
+          END;
+        END;
+      END;
+    END;
+
+    BEGIN
+    END.
+  }
+  RDLDATA
+  {
+  }
+}
+

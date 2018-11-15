@@ -1,0 +1,148 @@
+OBJECT Page 50050 Zetadocs Import Entries
+{
+  OBJECT-PROPERTIES
+  {
+    Date=06/13/16;
+    Time=[ 5:27:03 PM];
+    Modified=Yes;
+    Version List=ZETA;
+  }
+  PROPERTIES
+  {
+    SourceTable=Table50016;
+    PageType=List;
+    ActionList=ACTIONS
+    {
+      { 1000000026;  ;ActionContainer;
+                      ActionContainerType=RelatedInformation }
+      { 1000000027;1 ;Action    ;
+                      Name=Setup;
+                      RunObject=Page 50051;
+                      Promoted=Yes;
+                      PromotedIsBig=Yes;
+                      Image=Setup }
+      { 1000000028;1 ;Action    ;
+                      Name=Import;
+                      Promoted=Yes;
+                      PromotedIsBig=Yes;
+                      Image=Import;
+                      OnAction=BEGIN
+                                 REPORT.RUNMODAL(REPORT::"Zetadocs Import Entries");
+                               END;
+                                }
+      { 1000000030;1 ;Action    ;
+                      Name=Create Links;
+                      RunObject=Report 50093;
+                      Promoted=Yes;
+                      PromotedIsBig=Yes;
+                      Image=Calculate;
+                      PromotedCategory=Process }
+      { 1000000029;1 ;Action    ;
+                      Name=Clear Entries;
+                      Image=Delete;
+                      OnAction=BEGIN
+                                 IF CONFIRM('Clear All Entries?') THEN
+                                   DELETEALL;
+                               END;
+                                }
+      { 1000000032;1 ;Action    ;
+                      Name=Create Archive;
+                      OnAction=BEGIN
+                                 REPORT.RUNMODAL(REPORT::"Zetadocs Create Archive");
+                               END;
+                                }
+    }
+  }
+  CONTROLS
+  {
+    { 1000000000;0;Container;
+                ContainerType=ContentArea }
+
+    { 1000000001;1;Group  ;
+                Name=Group;
+                GroupType=Repeater }
+
+    { 1000000031;2;Field  ;
+                SourceExpr="Row No." }
+
+    { 1000000002;2;Field  ;
+                SourceExpr=ID }
+
+    { 1000000003;2;Field  ;
+                SourceExpr=Title }
+
+    { 1000000004;2;Field  ;
+                SourceExpr=ArchivedDate }
+
+    { 1000000005;2;Field  ;
+                SourceExpr=ArchivedBy }
+
+    { 1000000006;2;Field  ;
+                SourceExpr=SubFolder }
+
+    { 1000000007;2;Field  ;
+                SourceExpr=FileName }
+
+    { 1000000008;2;Field  ;
+                SourceExpr=DocumentType }
+
+    { 1000000009;2;Field  ;
+                SourceExpr=ZetadocsRecordLink }
+
+    { 1000000010;2;Field  ;
+                SourceExpr=ZetadocsRecordLinkType }
+
+    { 1000000011;2;Field  ;
+                SourceExpr=ZetadocsRecordNo }
+
+    { 1000000012;2;Field  ;
+                SourceExpr=ZetadocsOrganization }
+
+    { 1000000013;2;Field  ;
+                SourceExpr=ZetadocsRecipientName }
+
+    { 1000000014;2;Field  ;
+                SourceExpr=ZetadocsEmail }
+
+    { 1000000015;2;Field  ;
+                SourceExpr=ZetadocsCc }
+
+    { 1000000016;2;Field  ;
+                SourceExpr=ZetadocsBcc }
+
+    { 1000000017;2;Field  ;
+                SourceExpr=ZetadocsFrom }
+
+    { 1000000018;2;Field  ;
+                SourceExpr=ZetadocsFax }
+
+    { 1000000019;2;Field  ;
+                SourceExpr=ZetadocsPrinter }
+
+    { 1000000020;2;Field  ;
+                SourceExpr=ZetadocsCompanyNo }
+
+    { 1000000021;2;Field  ;
+                SourceExpr=ZetadocsDateSent }
+
+    { 1000000022;2;Field  ;
+                SourceExpr=ZetadocsDateReceived }
+
+    { 1000000023;2;Field  ;
+                SourceExpr=ZetadocsDocumentType }
+
+    { 1000000024;2;Field  ;
+                SourceExpr=ZetadocsRecordType }
+
+    { 1000000025;2;Field  ;
+                SourceExpr=ZetadocsArchiveID }
+
+  }
+  CODE
+  {
+
+    BEGIN
+    END.
+  }
+}
+

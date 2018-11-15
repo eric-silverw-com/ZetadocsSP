@@ -1,0 +1,191 @@
+OBJECT Report 50093 Zetadocs Create Link
+{
+  OBJECT-PROPERTIES
+  {
+    Date=06/10/16;
+    Time=[ 8:14:52 PM];
+    Modified=Yes;
+    Version List=ZETA;
+  }
+  PROPERTIES
+  {
+    ProcessingOnly=Yes;
+  }
+  DATASET
+  {
+    { 1000000000;;DataItem;                  ;
+               DataItemTable=Table50016;
+               OnPreDataItem=BEGIN
+                               TotalRec := COUNT;
+                               Window.OPEN('Processing Entries @1@@@@@@@@@@');
+                             END;
+
+               OnAfterGetRecord=BEGIN
+                                  CurrentRec += 1;
+                                  Window.UPDATE(1, CurrentRec / TotalRec * 9999 DIV 1);
+
+                                  // Current Sales Document
+                                  SalesHeader.SETRANGE("No.", ZetadocsRecordNo);
+                                  IF SalesHeader.FINDFIRST THEN
+                                  BEGIN
+                                    ZetadocsRecordLink := LinkFromSalesHeader;
+                                    MODIFY;
+                                    EXIT;
+                                  END;
+
+                                  // Posted Sales Order
+                                  SalesInvoiceHeader.SETRANGE("Order No.", ZetadocsRecordNo);
+                                  IF SalesInvoiceHeader.FINDFIRST THEN
+                                  BEGIN
+                                    SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
+                                    SalesHeader."No." := ZetadocsRecordNo;
+                                    ZetadocsRecordLink := LinkFromSalesHeader;
+                                    MODIFY;
+                                    EXIT;
+                                  END;
+
+                                  // Posted Sales Invoice
+                                  SalesInvoiceHeader.RESET;
+                                  IF SalesInvoiceHeader.GET(ZetadocsRecordNo) THEN
+                                  BEGIN
+                                    SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
+                                    SalesHeader."No." := ZetadocsRecordNo;
+                                    ZetadocsRecordLink := LinkFromSalesHeader;
+                                    MODIFY;
+                                    EXIT;
+                                  END;
+
+                                  // Customer
+                                  IF Customer.GET(ZetadocsRecordNo) THEN
+                                  BEGIN
+                                    ZetadocsRecordLink := STRSUBSTNO('1|%1|%2', DATABASE::Customer, ZetadocsRecordNo);
+                                    MODIFY;
+                                    EXIT;
+                                  END;
+
+                                  // Posted Sales Credit Memo
+                                  SalesCreditHeader.RESET;
+                                  IF SalesCreditHeader.GET(ZetadocsRecordNo) THEN
+                                  BEGIN
+                                    SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
+                                    SalesHeader."No." := ZetadocsRecordNo;
+                                    ZetadocsRecordLink := LinkFromSalesHeader;
+                                    MODIFY;
+                                    EXIT;
+                                  END;
+
+                                  // Posted Sales Return Order
+                                  SalesCreditHeader.SETRANGE("Return Order No.", ZetadocsRecordNo);
+                                  IF SalesCreditHeader.FINDFIRST THEN
+                                  BEGIN
+                                    SalesHeader."Document Type" := SalesHeader."Document Type"::"Return Order";
+                                    SalesHeader."No." := ZetadocsRecordNo;
+                                    ZetadocsRecordLink := LinkFromSalesHeader;
+                                    MODIFY;
+                                    EXIT;
+                                  END;
+
+                                  // Current Purchase Document
+                                  PurchaseHeader.SETRANGE("No.", ZetadocsRecordNo);
+                                  IF PurchaseHeader.FINDFIRST THEN
+                                  BEGIN
+                                    ZetadocsRecordLink := LinkFromPurchaseHeader;
+                                    MODIFY;
+                                    EXIT;
+                                  END;
+
+                                  // Posted Purchase Invoice
+                                  PurchInvoiceHeader.RESET;
+                                  IF PurchInvoiceHeader.GET(ZetadocsRecordNo) THEN
+                                  BEGIN
+                                    PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
+                                    PurchaseHeader."No." := ZetadocsRecordNo;
+                                    ZetadocsRecordLink := LinkFromPurchaseHeader;
+                                    MODIFY;
+                                    EXIT;
+                                  END;
+
+                                  // Vendor
+                                  IF Vendor.GET(ZetadocsRecordNo) THEN
+                                  BEGIN
+                                    ZetadocsRecordLink := STRSUBSTNO('1|%1|%2', DATABASE::Vendor, ZetadocsRecordNo);
+                                    MODIFY;
+                                    EXIT;
+                                  END;
+
+                                  // Posted Purchase Credit Memo
+                                  PurchCreditHeader.RESET;
+                                  IF PurchCreditHeader.GET(ZetadocsRecordNo) THEN
+                                  BEGIN
+                                    PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::"Credit Memo";
+                                    PurchaseHeader."No." := ZetadocsRecordNo;
+                                    ZetadocsRecordLink := LinkFromPurchaseHeader;
+                                    MODIFY;
+                                    EXIT;
+                                  END;
+
+                                  // Posted Purchase Return Order
+                                  PurchCreditHeader.SETRANGE("Return Order No.", ZetadocsRecordNo);
+                                  IF PurchCreditHeader.FINDFIRST THEN
+                                  BEGIN
+                                    PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::"Return Order";
+                                    PurchaseHeader."No." := ZetadocsRecordNo;
+                                    ZetadocsRecordLink := LinkFromPurchaseHeader;
+                                    MODIFY;
+                                    EXIT;
+                                  END;
+                                END;
+                                 }
+
+  }
+  REQUESTPAGE
+  {
+    PROPERTIES
+    {
+    }
+    CONTROLS
+    {
+    }
+  }
+  LABELS
+  {
+  }
+  CODE
+  {
+    VAR
+      SalesHeader@1000000003 : Record 36;
+      SalesInvoiceHeader@1000000004 : Record 112;
+      SalesCreditHeader@1000000005 : Record 114;
+      PurchaseHeader@1000000006 : Record 38;
+      PurchInvoiceHeader@1000000007 : Record 122;
+      PurchCreditHeader@1000000008 : Record 124;
+      Customer@1000000009 : Record 18;
+      Vendor@1000000010 : Record 23;
+      Window@1000000000 : Dialog;
+      TotalRec@1000000001 : Integer;
+      CurrentRec@1000000002 : Integer;
+
+    LOCAL PROCEDURE LinkFromSalesHeader@1000000000() LinkValue : Code[50];
+    VAR
+      TypeOrdinal@1000000000 : Integer;
+    BEGIN
+      TypeOrdinal := SalesHeader."Document Type";
+      LinkValue := STRSUBSTNO('1|%1|%2|%3', DATABASE::"Sales Header", TypeOrdinal, SalesHeader."No.");
+    END;
+
+    LOCAL PROCEDURE LinkFromPurchaseHeader@1000000006() LinkValue : Code[50];
+    VAR
+      TypeOrdinal@1000000000 : Integer;
+    BEGIN
+      TypeOrdinal := PurchaseHeader."Document Type";
+      LinkValue := STRSUBSTNO('1|%1|%2|%3', DATABASE::"Purchase Header", TypeOrdinal, PurchaseHeader."No.");
+    END;
+
+    BEGIN
+    END.
+  }
+  RDLDATA
+  {
+  }
+}
+

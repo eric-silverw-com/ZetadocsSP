@@ -1,0 +1,71 @@
+OBJECT Page 50051 Zetadocs Import Setup
+{
+  OBJECT-PROPERTIES
+  {
+    Date=06/10/16;
+    Time=[ 3:13:59 PM];
+    Modified=Yes;
+    Version List=ZETA;
+  }
+  PROPERTIES
+  {
+    SourceTable=Table50017;
+    OnOpenPage=BEGIN
+                 IF NOT FINDFIRST THEN
+                   INSERT;
+               END;
+
+    ActionList=ACTIONS
+    {
+      { 1000000005;  ;ActionContainer;
+                      ActionContainerType=ActionItems }
+      { 1000000006;1 ;Action    ;
+                      Name=Test Connection;
+                      Promoted=Yes;
+                      PromotedIsBig=Yes;
+                      Image=TestDatabase;
+                      PromotedCategory=Process;
+                      OnAction=BEGIN
+                                 ZetadocsMgt.OpenConnection;
+                                 ZetadocsMgt.CloseConnection;
+                                 MESSAGE('Success!');
+                               END;
+                                }
+    }
+  }
+  CONTROLS
+  {
+    { 1000000003;;Container;
+                ContainerType=ContentArea }
+
+    { 1000000004;1;Group  ;
+                Name=General;
+                GroupType=Group }
+
+    { 1000000000;2;Field  ;
+                AssistEdit=Yes;
+                SourceExpr="Zetadocs Container ID";
+                OnAssistEdit=VAR
+                               ZetaMgt@1000000000 : Codeunit 50005;
+                             BEGIN
+                               ZetaMgt.GetContainer;
+                             END;
+                              }
+
+    { 1000000001;2;Field  ;
+                SourceExpr="Zetadocs Server" }
+
+    { 1000000002;2;Field  ;
+                SourceExpr="Zetadocs Database" }
+
+  }
+  CODE
+  {
+    VAR
+      ZetadocsMgt@1000000000 : Codeunit 50005;
+
+    BEGIN
+    END.
+  }
+}
+

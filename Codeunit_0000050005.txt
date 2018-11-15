@@ -1,0 +1,196 @@
+OBJECT Codeunit 50005 Zetadocs Import Mgt.
+{
+  OBJECT-PROPERTIES
+  {
+    Date=07/18/16;
+    Time=[ 2:15:24 PM];
+    Modified=Yes;
+    Version List=ZETA;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      SQLCn@1000000001 : DotNet "'System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlConnection";
+      SQLCmd@1000000000 : DotNet "'System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlCommand";
+      ZetaSetup@1000000002 : Record 50017;
+
+    PROCEDURE OpenConnection@1000000000();
+    BEGIN
+      WITH ZetaSetup DO
+      BEGIN
+        FINDFIRST;
+        SQLCn := SQLCn.SqlConnection(STRSUBSTNO('Server=%1;Database=%2;Trusted_Connection=True;', "Zetadocs Server", "Zetadocs Database"));
+        SQLCn.Open;
+      END;
+    END;
+
+    PROCEDURE CloseConnection@1000000001();
+    BEGIN
+      SQLCn.Close;
+    END;
+
+    PROCEDURE GetContainer@1000000003();
+    BEGIN
+      OpenConnection;
+      SQLCmd := SQLCmd.SqlCommand();
+      SQLCmd.CommandText := 'SELECT Id FROM [dbo].[Containers]';
+      SQLCmd.Connection := SQLCn;
+      ZetaSetup."Zetadocs Container ID" := SQLCmd.ExecuteScalar();
+      ZetaSetup.MODIFY;
+      CloseConnection;
+    END;
+
+    PROCEDURE InsertFile@1000000002(ZdImport@1000000000 : Record 50016) HasValue : Boolean;
+    VAR
+      DeleteCmd@1000000006 : DotNet "'System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlCommand";
+      DeleteParam@1000000007 : DotNet "'System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlParameter";
+      InsertCmd@1000000001 : DotNet "'System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlCommand";
+      txtInsert@1000000002 : TextConst 'ENU=INSERT INTO [dbo].[Files] ([Id],[Title],[ArchivedDate],[ArchivedBy],[SubFolder],[FileName],[DocumentType],[ZetadocsRecordLink],[ZetadocsRecordLinkType],[ZetadocsRecordNo],[ZetadocsOrganization],[ZetadocsRecipientName],[ZetadocsEmail],[ZetadocsCc],[ZetadocsBcc],[ZetadocsFrom],[ZetadocsFax],[ZetadocsPrinter],[ZetadocsCompanyNo],[ZetadocsDateSent],[ZetadocsDateReceived],[ZetadocsDocumentType],[ZetadocsRecordType],[ZetadocsArchiveID],[Container_Id]) VALUES (@Id, @Title, @ArchivedDate, @ArchivedBy, @SubFolder, @FileName, @DocumentType, @ZetadocsRecordLink, @ZetadocsRecordLinkType, @ZetadocsRecordNo, @ZetadocsOrganization, @ZetadocsRecipientName, @ZetadocsEmail, @ZetadocsCc, @ZetadocsBcc, @ZetadocsFrom, @ZetadocsFax, @ZetadocsPrinter, @ZetadocsCompanyNo, @ZetadocsDateSent, @ZetadocsDateReceived, @ZetadocsDocumentType, @ZetadocsRecordType, @ZetadocsArchiveID, @Container_Id)';
+      InsertParam@1000000003 : DotNet "'System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlParameter";
+      SQLType@1000000004 : DotNet "'System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlDbType";
+      CommandText@1000000005 : Text;
+      txtDelete@1000000008 : TextConst 'ENU="DELETE FROM [dbo].[Files] WHERE SubFolder= @SubFolder AND FileName = @FileName"';
+    BEGIN
+      WITH ZdImport DO
+      BEGIN
+        DeleteCmd := DeleteCmd.SqlCommand();
+        DeleteCmd.Connection := SQLCn;
+        DeleteCmd.CommandText := txtDelete;
+
+        InsertCmd := InsertCmd.SqlCommand();
+        CommandText := txtInsert;
+        InsertCmd.Connection := SQLCn;
+
+        InsertParam := InsertParam.SqlParameter('@ID', SQLType.UniqueIdentifier);
+        InsertParam.Value := ID;
+        InsertCmd.Parameters.Add(InsertParam);
+        InsertParam := InsertParam.SqlParameter('@Title', SQLType.NVarChar);
+        InsertParam.Value := Title;
+        InsertCmd.Parameters.Add(InsertParam);
+        InsertParam := InsertParam.SqlParameter('@ArchivedDate', SQLType.DateTime);
+        InsertParam.Value := ArchivedDate;
+        InsertCmd.Parameters.Add(InsertParam);
+
+        IF CreateTextParam(InsertParam, CommandText, '@ArchivedBy', ArchivedBy) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateTextParam(InsertParam, CommandText, '@SubFolder', SubFolder) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateTextParam(DeleteParam, CommandText, '@SubFolder', SubFolder) THEN
+          DeleteCmd.Parameters.Add(DeleteParam);
+
+        IF CreateTextParam(InsertParam, CommandText, '@FileName', FileName) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateTextParam(DeleteParam, CommandText, '@FileName', FileName) THEN
+          DeleteCmd.Parameters.Add(DeleteParam);
+
+
+        InsertParam := InsertParam.SqlParameter('@DocumentType', SQLType.NVarChar);
+        IF DocumentType = '' THEN
+          DocumentType := 'Zetadocs';
+        InsertParam.Value := DocumentType;
+        InsertCmd.Parameters.Add(InsertParam);
+
+        IF CreateTextParam(InsertParam, CommandText, '@ZetadocsRecordLink', ZetadocsRecordLink) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateTextParam(InsertParam, CommandText, '@ZetadocsRecordLinkType', ZetadocsRecordLinkType) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateTextParam(InsertParam, CommandText, '@ZetadocsRecordNo', ZetadocsRecordNo) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateTextParam(InsertParam, CommandText, '@ZetadocsOrganization', ZetadocsOrganization) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateTextParam(InsertParam, CommandText, '@ZetadocsRecipientName', ZetadocsRecipientName) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateTextParam(InsertParam, CommandText, '@ZetadocsEmail', ZetadocsEmail) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateTextParam(InsertParam, CommandText, '@ZetadocsCc', ZetadocsCc) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateTextParam(InsertParam, CommandText, '@ZetadocsBcc', ZetadocsBcc) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateTextParam(InsertParam, CommandText, '@ZetadocsFrom', ZetadocsFrom) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateTextParam(InsertParam, CommandText, '@ZetadocsFax', ZetadocsFax) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateTextParam(InsertParam, CommandText, '@ZetadocsPrinter', ZetadocsPrinter) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateTextParam(InsertParam, CommandText, '@ZetadocsCompanyNo', ZetadocsCompanyNo) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateDateParam(InsertParam, CommandText, '@ZetadocsDateSent', ZetadocsDateSent) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateDateParam(InsertParam, CommandText, '@ZetadocsDateReceived', ZetadocsDateReceived) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateTextParam(InsertParam, CommandText, '@ZetadocsDocumentType', ZetadocsDocumentType) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+        IF CreateTextParam(InsertParam, CommandText, '@ZetadocsRecordType', ZetadocsRecordType) THEN
+          InsertCmd.Parameters.Add(InsertParam);
+
+        InsertParam := InsertParam.SqlParameter('@ZetadocsArchiveID', SQLType.UniqueIdentifier);
+        InsertParam.Value := ZetadocsArchiveID;
+        InsertCmd.Parameters.Add(InsertParam);
+        InsertParam := InsertParam.SqlParameter('@Container_Id', SQLType.UniqueIdentifier);
+        InsertParam.Value := ZetaSetup."Zetadocs Container ID";
+        InsertCmd.Parameters.Add(InsertParam);
+
+        DeleteCmd.ExecuteNonQuery;
+
+        InsertCmd.CommandText := CommandText;
+        InsertCmd.ExecuteNonQuery;
+      END;
+    END;
+
+    LOCAL PROCEDURE CreateTextParam@1000000013(VAR InsertParam@1000000001 : DotNet "'System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlParameter";VAR CommandText@1000000004 : Text;ParamName@1000000003 : Text[40];TextValue@1000000002 : Text[250]) HasValue : Boolean;
+    VAR
+      SQLType@1000000000 : DotNet "'System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlDbType";
+      ParamPos@1000000005 : Integer;
+    BEGIN
+      IF TextValue <> '' THEN
+      BEGIN
+        InsertParam := InsertParam.SqlParameter(ParamName, SQLType.NVarChar);
+        InsertParam.Value := TextValue;
+        HasValue := TRUE;
+      END ELSE BEGIN
+        ParamPos := STRPOS(CommandText, ParamName);
+        CommandText := DELSTR(CommandText, ParamPos, STRLEN(ParamName));
+        CommandText := INSSTR(CommandText, 'NULL', ParamPos);
+      END;
+    END;
+
+    LOCAL PROCEDURE CreateDateParam@1000000014(VAR InsertParam@1000000002 : DotNet "'System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlParameter";VAR CommandText@1000000004 : Text;ParamName@1000000001 : Text[40];DateValue@1000000000 : DateTime) HasValue : Boolean;
+    VAR
+      SQLType@1000000003 : DotNet "'System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlDbType";
+      ParamPos@1000000005 : Integer;
+    BEGIN
+      IF DateValue <> 0DT THEN
+      BEGIN
+        InsertParam := InsertParam.SqlParameter(ParamName, SQLType.DateTime);
+        InsertParam.Value := DateValue;
+        HasValue := TRUE;
+      END ELSE BEGIN
+        ParamPos := STRPOS(CommandText, ParamName);
+        CommandText := DELSTR(CommandText, ParamPos, STRLEN(ParamName));
+        CommandText := INSSTR(CommandText, 'NULL', ParamPos);
+      END;
+    END;
+
+    EVENT SQLCn@1000000001::InfoMessage@48(sender@1000000001 : Variant;e@1000000000 : DotNet "'System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.SqlClient.SqlInfoMessageEventArgs");
+    BEGIN
+    END;
+
+    EVENT SQLCn@1000000001::StateChange@49(sender@1000000001 : Variant;e@1000000000 : DotNet "'System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Data.StateChangeEventArgs");
+    BEGIN
+    END;
+
+    EVENT SQLCn@1000000001::Disposed@50(sender@1000000001 : Variant;e@1000000000 : DotNet "'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.EventArgs");
+    BEGIN
+    END;
+
+    BEGIN
+    END.
+  }
+}
+

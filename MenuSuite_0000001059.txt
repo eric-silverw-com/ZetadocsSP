@@ -1,0 +1,46 @@
+OBJECT MenuSuite 1059 Zetadocs Import
+{
+  OBJECT-PROPERTIES
+  {
+    Date=06/10/16;
+    Time=[ 3:04:21 PM];
+    Modified=Yes;
+    Version List=ZETA;
+  }
+  PROPERTIES
+  {
+  }
+  MENUNODES
+  {
+    {                ;[{19A352FE-D90D-424E-B85F-CF3B8E98CF0E}] ;NextNodeID=[{ABABE051-6B6D-402E-844B-F3A071DD1D0A}] }
+    { Menu           ;[{ABABE051-6B6D-402E-844B-F3A071DD1D0A}] ;Name=File Attachment;
+                                                                CaptionML=[ENU=File Attachment;
+                                                                           ENC=File Attachment];
+                                                                MemberOfMenu=[{ABABE051-6B6D-402E-844B-F3A071DD1D0A}];
+                                                                Image=0;
+                                                                IsShortcut=No;
+                                                                Visible=Yes;
+                                                                Enabled=Yes }
+    { MenuItem       ;[{208852D7-3428-4698-A48F-F0BCAA91B12E}] ;Name=File Attachment Setup;
+                                                                CaptionML=ENU=File Attachment Setup;
+                                                                RunObjectType=Page;
+                                                                RunObjectID=37071301;
+                                                                Visible=Yes;
+                                                                NextNodeID=[{208852D7-3428-4698-A48F-F0BCAA91B12E}];
+                                                                DepartmentCategory=Administration }
+    {                ;[{2957D39E-35C5-475F-AF52-D851B97F5D1A}] ;NextNodeID=[{3476C7F0-801E-4D46-9FB6-889F09B42398}] }
+    { MenuGroup      ;[{3476C7F0-801E-4D46-9FB6-889F09B42398}] ;Name=Report Selections;
+                                                                CaptionML=ENU=Report Selections;
+                                                                Visible=Yes }
+    {                ;[{DF601C8A-07F7-4841-8929-9F2065BCB302}] ;NextNodeID=[{70C2D44B-5BBF-4ADF-AE3E-64F5C5A527AD}] }
+    { MenuItem       ;[{70C2D44B-5BBF-4ADF-AE3E-64F5C5A527AD}] ;Name=Zetadocs Import Entries;
+                                                                CaptionML=ENU=Zetadocs Import Entries;
+                                                                MemberOfMenu=[{F8D2429D-034B-4C58-9B5E-81BE962DB1BC}];
+                                                                RunObjectType=Page;
+                                                                RunObjectID=50050;
+                                                                ParentNodeID=[{F8D2429D-034B-4C58-9B5E-81BE962DB1BC}];
+                                                                Visible=Yes;
+                                                                NextNodeID=[{B12180CF-0EFB-43AD-9118-7765E953AAFD}];
+                                                                DepartmentCategory=Tasks }
+  }
+}

@@ -1,0 +1,65 @@
+OBJECT Report 50094 Zetadocs Create Archive
+{
+  OBJECT-PROPERTIES
+  {
+    Date=06/13/16;
+    Time=[ 5:27:52 PM];
+    Modified=Yes;
+    Version List=ZETA;
+  }
+  PROPERTIES
+  {
+    ProcessingOnly=Yes;
+  }
+  DATASET
+  {
+    { 1000000000;;DataItem;                  ;
+               DataItemTable=Table50016;
+               OnPreDataItem=BEGIN
+                               ZetadocsMgt.OpenConnection;
+                               Window.OPEN('Uploading Zetadocs Entries @1@@@@@@@@@');
+                               TotalCnt := COUNT;
+                             END;
+
+               OnAfterGetRecord=BEGIN
+                                  CurrentCnt += 1;
+                                  Window.UPDATE(1, CurrentCnt / TotalCnt * 9999 DIV 1);
+
+                                  ZetadocsMgt.InsertFile("Zetadocs Import");
+                                END;
+
+               OnPostDataItem=BEGIN
+                                ZetadocsMgt.CloseConnection;
+                                Window.CLOSE;
+                              END;
+                               }
+
+  }
+  REQUESTPAGE
+  {
+    PROPERTIES
+    {
+    }
+    CONTROLS
+    {
+    }
+  }
+  LABELS
+  {
+  }
+  CODE
+  {
+    VAR
+      ZetadocsMgt@1000000000 : Codeunit 50005;
+      Window@1000000001 : Dialog;
+      TotalCnt@1000000002 : Integer;
+      CurrentCnt@1000000003 : Integer;
+
+    BEGIN
+    END.
+  }
+  RDLDATA
+  {
+  }
+}
+

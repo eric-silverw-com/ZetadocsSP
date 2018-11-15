@@ -1,0 +1,34 @@
+OBJECT Table 50017 Zetadocs Connection Setup
+{
+  OBJECT-PROPERTIES
+  {
+    Date=06/10/16;
+    Time=[ 3:23:29 PM];
+    Modified=Yes;
+    Version List=ZETA;
+  }
+  PROPERTIES
+  {
+  }
+  FIELDS
+  {
+    { 1   ;   ;Zetadocs Container ID;GUID          }
+    { 2   ;   ;Zetadocs Server     ;Text30         }
+    { 3   ;   ;Zetadocs Database   ;Text30         }
+    { 4   ;   ;Entry No.           ;Integer        }
+  }
+  KEYS
+  {
+    {    ;Entry No.                               ;Clustered=Yes }
+  }
+  FIELDGROUPS
+  {
+  }
+  CODE
+  {
+
+    BEGIN
+    END.
+  }
+}
+

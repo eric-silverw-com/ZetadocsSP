@@ -1,0 +1,55 @@
+OBJECT Table 50016 Zetadocs Import
+{
+  OBJECT-PROPERTIES
+  {
+    Date=07/08/16;
+    Time=[ 9:14:46 PM];
+    Modified=Yes;
+    Version List=ZETA;
+  }
+  PROPERTIES
+  {
+  }
+  FIELDS
+  {
+    { 1   ;   ;ID                  ;GUID           }
+    { 2   ;   ;Row No.             ;Integer        }
+    { 4   ;   ;Title               ;Text200        }
+    { 6   ;   ;ArchivedDate        ;DateTime       }
+    { 8   ;   ;ArchivedBy          ;Text80         }
+    { 10  ;   ;SubFolder           ;Text50         }
+    { 12  ;   ;FileName            ;Text200        }
+    { 14  ;   ;DocumentType        ;Text30         }
+    { 16  ;   ;ZetadocsRecordLink  ;Text50         }
+    { 18  ;   ;ZetadocsRecordLinkType;Code10      ;InitValue=NAV }
+    { 20  ;   ;ZetadocsRecordNo    ;Code50         }
+    { 22  ;   ;ZetadocsOrganization;Text250        }
+    { 24  ;   ;ZetadocsRecipientName;Text250       }
+    { 26  ;   ;ZetadocsEmail       ;Text250        }
+    { 28  ;   ;ZetadocsCc          ;Text250        }
+    { 30  ;   ;ZetadocsBcc         ;Text250        }
+    { 32  ;   ;ZetadocsFrom        ;Text250        }
+    { 34  ;   ;ZetadocsFax         ;Text250        }
+    { 36  ;   ;ZetadocsPrinter     ;Text250        }
+    { 38  ;   ;ZetadocsCompanyNo   ;Code100        }
+    { 40  ;   ;ZetadocsDateSent    ;DateTime       }
+    { 42  ;   ;ZetadocsDateReceived;DateTime       }
+    { 44  ;   ;ZetadocsDocumentType;Text50         }
+    { 46  ;   ;ZetadocsRecordType  ;Text50         }
+    { 48  ;   ;ZetadocsArchiveID   ;GUID           }
+  }
+  KEYS
+  {
+    {    ;ID                                      ;Clustered=Yes }
+  }
+  FIELDGROUPS
+  {
+  }
+  CODE
+  {
+
+    BEGIN
+    END.
+  }
+}
+
